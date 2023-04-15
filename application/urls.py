@@ -21,7 +21,9 @@ from django.conf.urls import include
 from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
-    path('api/users/', include('users.urls')),
+    path('api/profile/', include('users.urls')),
+    # path('api/cards/', include('cards.urls')),
+    path('api/decks/', include('decks.urls')),
     path('api/token-auth/', obtain_auth_token, name='api_token_auth'),
     path('admin/', admin.site.urls),
 ]

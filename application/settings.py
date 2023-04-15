@@ -58,6 +58,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
 
     'users',
+    'cards',
+    'decks',
 ]
 
 REST_FRAMEWORK = {
