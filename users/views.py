@@ -38,13 +38,7 @@ class RetrieveUpdateDestroyUser(RetrieveUpdateDestroyAPIView):
             token = Token.objects.get(user=self.object)
             token.delete()
             Token.objects.create(user=self.object)
-            response = {
-                'status': 'success',
-                'code': status.HTTP_200_OK,
-                'message': 'Password updated successfully',
-                'data': []
-            }
 
-            return Response(response)
+            return Response(status=204)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
