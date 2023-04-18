@@ -18,9 +18,10 @@ class CardWithProgressSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         card_with_progress = super().to_representation(instance)
         card = model_to_dict(instance.card)
-        for key, value in card_with_progress.items():
-            setattr(card_with_progress, key, value)
-        return card
+        for key, value in card.items():
+            card_with_progress[key] = value
+
+        return card_with_progress
 
     class Meta:
         model = Progress
