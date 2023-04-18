@@ -42,7 +42,7 @@ class ProgressViewSet(viewsets.ViewSet):
         card = Card.objects.get_or_create(**card_serializer.data)[0]
         decks = request.data.get('decks')
         for deck_id in decks:
-            deck = get_object_or_404(Deck, id=deck_id, is_private=True, owner=request.user)
+            deck = get_object_or_404(Deck, id=deck_id, owner=request.user)
             # if deck.is_private and deck.owner != request.user:
             #     raise PermissionDenied("You don't have acces to this deck")
             Progress.objects.get_or_create(deck=deck, card=card)

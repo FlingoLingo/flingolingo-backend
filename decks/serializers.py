@@ -1,5 +1,5 @@
 from rest_framework import serializers
-
+from django.forms import model_to_dict
 from .models import Deck, Progress
 from cards.models import Card
 
@@ -14,8 +14,21 @@ class ProgressSerializer(serializers.ModelSerializer):
         model = Progress
         fields = ['id', 'is_learned', 'decks' ]
 
+class CardWithProgressSerializer(serializers.ModelSerializer):
+    def to_representation(self, instance):
+        card_with_progress = super().to_representation(instance)
+        card = model_to_dict(instance.card)
+        for key, value in card_with_progress.items():
+            setattr(card_with_progress, key, value)
+        return card
+
+    class Meta:
+        model = Progress
+        fields = ['is_learned', 'card' ]
+        depth = 0
+
 class DeckSerializer(serializers.ModelSerializer):
-    cards = ProgressSerializer(many=True, required=False)
+    cards = CardWithProgressSerializer(many=True, required=False)
 
     def create(self, validated_data):
         auth_usr = self.context['auth_usr']

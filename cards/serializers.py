@@ -6,5 +6,4 @@ from decks.models import Progress
 class CardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Card
-        fields = ( 'id', 'front', 'back')
-    
+        fields = ( 'id', 'rus', 'eng', 'transcription', 'examples')
