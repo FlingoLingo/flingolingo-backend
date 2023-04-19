@@ -6,6 +6,7 @@ class Card(models.Model):
     eng = models.CharField(verbose_name='слово на английском', max_length=50)
     transcription = models.CharField(verbose_name='транскрипция', max_length=50, blank=True, default='')
     examples = models.CharField(verbose_name='примеры', max_length=500, blank=True, default="")
+    # last_repeated = models.DateField()
 
     class Meta:
         verbose_name = 'Карта'
