@@ -31,6 +31,10 @@ class RetrieveUpdateDestroyDeck(RetrieveUpdateDestroyAPIView):
     lookup_url_kwarg = 'deck_id'
     def get_queryset(self):
         return Deck.objects.filter(owner=self.request.user)
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({'message': 'Deck deleted successfully'}, status=200)
 
 
 class ProgressViewSet(viewsets.ViewSet):
@@ -55,7 +59,8 @@ class ProgressViewSet(viewsets.ViewSet):
     def destroy(self, request, deck_id, card_id):
         progress = get_object_or_404(Progress, deck_id=deck_id, card_id=card_id)
         progress.delete()
-        return Response(status=204)
+        return Response({'message': 'Card removed from deck successfully'}, status=200)
+
 
 # class AddCard(CreateAPIView):
 #     model = Progress
