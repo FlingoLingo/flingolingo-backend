@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404
+from datetime import datetime 
 
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -40,7 +41,7 @@ class RetrieveUpdateDestroyDeck(RetrieveUpdateDestroyAPIView):
     def update(self, request, deck_id, *args, **kwargs):
         if kwargs.get('partial', False) == True:
             return super().update(request, *args, **kwargs)
-        get_object_or_404(Deck, id=deck_id, owner=request.user)
+        deck = get_object_or_404(Deck, id=deck_id, owner=request.user)
         cards_learned = request.data.get('cards_learned')
         cards_forgotten = request.data.get('cards_forgotten')
         for card_id in cards_learned:
@@ -49,6 +50,8 @@ class RetrieveUpdateDestroyDeck(RetrieveUpdateDestroyAPIView):
         for card_id in cards_forgotten:
             progress = Progress.objects.filter(deck_id=deck_id, card_id=card_id)
             progress.update(is_learned=False)
+        deck.last_repeated = datetime.now()
+        deck.save()
         return Response({'message': 'Cards changed knowledge statuses'}, status=200)
 
 class ProgressViewSet(viewsets.ViewSet):

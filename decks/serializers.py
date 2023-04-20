@@ -31,6 +31,7 @@ class CardWithProgressSerializer(serializers.ModelSerializer):
 
 class DeckSerializer(serializers.ModelSerializer):
     cards = CardWithProgressSerializer(many=True, required=False)
+    read_only_fields = ('last_repeated')
 
     def create(self, validated_data):
         auth_usr = self.context['auth_usr']
@@ -39,7 +40,7 @@ class DeckSerializer(serializers.ModelSerializer):
         return message
     class Meta:
         model = Deck
-        fields = ['id', 'is_private', 'name', 'cards']
+        fields = ['id', 'is_private', 'name', 'last_repeated', 'cards']
 
 
 

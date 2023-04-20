@@ -8,6 +8,7 @@ class Deck(models.Model):
     name = models.CharField(verbose_name='название', max_length=30, default='Новая колода')
     description = models.CharField(verbose_name='описание', max_length=500, default="")
     owner = models.ForeignKey(User, verbose_name='владелец', on_delete=models.CASCADE, blank=True)
+    last_repeated = models.DateTimeField(verbose_name='время последнего повторения', null=True)
     class Meta:
         verbose_name = 'Колода'
         verbose_name_plural = 'Колоды'
