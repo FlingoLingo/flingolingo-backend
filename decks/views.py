@@ -38,7 +38,7 @@ class RetrieveUpdateDestroyDeck(RetrieveUpdateDestroyAPIView):
         return Response({'message': 'Deck deleted successfully'}, status=200)
     
     def update(self, request, deck_id, *args, **kwargs):
-        if kwargs['partial'] == True:
+        if kwargs.get('partial', False) == True:
             return super().update(request, *args, **kwargs)
         get_object_or_404(Deck, id=deck_id, owner=request.user)
         cards_learned = request.data.get('cards_learned')
