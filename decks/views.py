@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.generics import RetrieveUpdateDestroyAPIView, CreateAPIView, ListCreateAPIView
+from rest_framework.generics import RetrieveUpdateDestroyAPIView, UpdateAPIView, ListCreateAPIView
 from rest_framework import permissions, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError, PermissionDenied, NotAuthenticated
@@ -18,12 +18,13 @@ class ListCreateDeck(ListCreateAPIView):
     serializer_class = DeckSerializer
     def get_queryset(self):
         return Deck.objects.filter(owner=self.request.user)
+    
     def create(self, request):
         serializer = DeckSerializer(data=request.data, context={'auth_usr': request.user})
         serializer.is_valid(raise_exception=True)
         deck = serializer.save()
         return Response(DeckSerializer(deck).data, status=201)
-
+    
 class RetrieveUpdateDestroyDeck(RetrieveUpdateDestroyAPIView):
     model = Deck
     permission_classes = (IsAuthenticated,)
@@ -35,7 +36,14 @@ class RetrieveUpdateDestroyDeck(RetrieveUpdateDestroyAPIView):
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response({'message': 'Deck deleted successfully'}, status=200)
-
+    
+    def update(self, request, deck_id):
+        get_object_or_404(Deck, id=deck_id, owner=request.user)
+        cards = request.data.get('cards_learned')
+        for card_id in cards:
+            progress = Progress.objects.filter(deck_id=deck_id, card_id=card_id)
+            progress.update(is_learned=True)
+        return Response({'message': 'Cards marked as learned'}, status=200)
 
 class ProgressViewSet(viewsets.ViewSet):
     permission_classes = (IsAuthenticated,)
@@ -57,22 +65,9 @@ class ProgressViewSet(viewsets.ViewSet):
         return Response(CardSerializer(instance=card).data, status=201)
 
     def destroy(self, request, deck_id, card_id):
+        get_object_or_404(Deck, id=deck_id, owner=request.user)
         progress = get_object_or_404(Progress, deck_id=deck_id, card_id=card_id)
         progress.delete()
         return Response({'message': 'Card removed from deck successfully'}, status=200)
-
-
-# class AddCard(CreateAPIView):
-#     model = Progress
-#     permission_classes = (IsAuthenticated,)
-#     serializer_class = ProgressSerializer
-#     lookup_url_kwarg = 'deck_id'
-
-
-# class RemoveCard(CreateAPIView):
-#     model = Progress
-#     permission_classes = (IsAuthenticated,)
-#     serializer_class = ProgressSerializer
-#     lookup_url_kwarg = 'deck_id'
-#     queryset = Progress.objects.all()
     
+
