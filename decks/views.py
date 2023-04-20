@@ -39,11 +39,15 @@ class RetrieveUpdateDestroyDeck(RetrieveUpdateDestroyAPIView):
     
     def update(self, request, deck_id):
         get_object_or_404(Deck, id=deck_id, owner=request.user)
-        cards = request.data.get('cards_learned')
-        for card_id in cards:
+        cards_learned = request.data.get('cards_learned')
+        cards_forgotten = request.data.get('cards_forgotten')
+        for card_id in cards_learned:
             progress = Progress.objects.filter(deck_id=deck_id, card_id=card_id)
             progress.update(is_learned=True)
-        return Response({'message': 'Cards marked as learned'}, status=200)
+        for card_id in cards_forgotten:
+            progress = Progress.objects.filter(deck_id=deck_id, card_id=card_id)
+            progress.update(is_learned=False)
+        return Response({'message': 'Cards changed knowledge statuses'}, status=200)
 
 class ProgressViewSet(viewsets.ViewSet):
     permission_classes = (IsAuthenticated,)
