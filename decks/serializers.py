@@ -39,7 +39,7 @@ class DeckSerializer(serializers.ModelSerializer):
         return message
     class Meta:
         model = Deck
-        fields = ['id', 'is_private', 'name', 'description', 'cards']
+        fields = ['id', 'is_private', 'name', 'cards']
 
 
 
