@@ -13,6 +13,26 @@ from .serializers import DeckSerializer, ProgressSerializer
 from cards.serializers import CardSerializer
 from cards.models import Card
 
+import google.generativeai as genai
+
+from application.settings import GEMINI_KEY
+from deep_translator import GoogleTranslator
+
+
+def get_ai_response(topic):
+    genai.configure(api_key=GEMINI_KEY)
+    print(f'{topic=}')
+
+    model = genai.GenerativeModel('gemini-1.5-flash')
+
+    response = model.generate_content(
+        'Ты гениальный полиглот и преподаватель английского языка. '
+        f'Напиши список из 20-30 английских слов для изучения на тему "{topic}" '
+        'Перечисли английские слова через запятую и БОЛЬШЕ НИЧЕГО.'
+    )
+
+    return response.text
+
 class ListCreateDeck(ListCreateAPIView):
     model = Deck
     permission_classes = (IsAuthenticated,)
@@ -24,6 +44,29 @@ class ListCreateDeck(ListCreateAPIView):
         serializer = DeckSerializer(data=request.data, context={'auth_usr': request.user})
         serializer.is_valid(raise_exception=True)
         deck = serializer.save()
+        return Response(DeckSerializer(deck).data, status=201)
+
+class AIDeckViewSet(viewsets.ViewSet):
+    permission_classes = (IsAuthenticated,)   
+    def create_with_ai(self, request):
+        serializer = DeckSerializer(data=request.data, context={'auth_usr': request.user})
+        serializer.is_valid(raise_exception=True)
+        deck = serializer.save()
+
+        eng_text = get_ai_response(deck.name)
+        rus_text = GoogleTranslator(source='en', target='ru').translate(eng_text)
+        eng_words = [word.strip() for word in eng_text.split(',') if len(word) > 1 ]
+        rus_words = [word.strip() for word in rus_text.split(',') if len(word) > 1 ]
+        for eng, rus in zip(eng_words, rus_words):
+
+
+            card = Card.objects.get_or_create(rus=rus, eng=eng)[0]
+            
+            # if deck.is_private and deck.owner != request.user:
+            #     raise PermissionDenied("You don't have acces to this deck")
+            Progress.objects.get_or_create(deck=deck, card=card)
+
+
         return Response(DeckSerializer(deck).data, status=201)
     
 class RetrieveUpdateDestroyDeck(RetrieveUpdateDestroyAPIView):

@@ -98,6 +98,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'application.wsgi.application'
 
+GEMINI_KEY = get_secret('GEMINI_KEY')
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
